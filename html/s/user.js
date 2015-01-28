@@ -382,8 +382,33 @@ function MakeThread(arr) {
 
 
 }
+
+function MakePageList(element, numpages, curpage, command) {
+    //TODO: Add a document fragment shit
+    if (numpages < 6) {
+        for (var i = 1; i < numpages; i++)
+
+        {
+            var s = createElement("span");
+            s.innerHTML = i;
+            addClass(s, "page link");
+            appendChild(element, s);
+            s.onclick = onclicker([command, i]);
+        }
+    } else {
+        for (var i = 1; i < 4; i++) {
+            var s = createElement("span");
+            s.innerHTML = i;
+            addClass(s, "page link");
+            appendChild(element, s);
+            s.onclick = onclicker([command, i]);
+        }
+//TODO: Check for the current page number
+    }
+
+}
 //This will create the forum div that holds all the threads.
-function MakeThreadGroup(id,numpages) {
+function MakeThreadGroup(id, numpages) {
     //Gonna make it wit tables
 
     var threadHolder = createElement("div");
@@ -393,6 +418,8 @@ function MakeThreadGroup(id,numpages) {
     addClass(pageHolder, "pageholder");
     pageHolder.id = "pageholder_" + id;
     pageHolder.innerHTML = "Page:";
+    MakePageList(pageHolder, numpages, 1, "bord");
+    //TODO: Make a standard function for page lists
     var buttonHolder = createElement("div");
     buttonHolder.id = "buttonholder_" + id;
     addClass(buttonHolder, "buttonholder");
@@ -507,7 +534,7 @@ function MakeProfile(arr) {
 
 }
 function MakeTopicForm(forum_id, isPost) {
-   
+
     clearContents(cont);
     var formHolder = createElement("form");
     formHolder.id = "PostCreator";
@@ -762,8 +789,8 @@ function Parse(msg, rebuilding) {
                 appendChild(nvb, [spacer, navlink]);
             }
             //Make the top threadcap.
-            MakeThreadGroup(msg[1],msg[2]);
-            
+            MakeThreadGroup(msg[1], msg[2]);
+
             for (var i = 3; i < msg.length; i++) {
 
                 //Each thread is a separate array.
@@ -771,9 +798,9 @@ function Parse(msg, rebuilding) {
             }
             break;
         case "post":
-            SetURL(["thread",msg[1]]);
+            SetURL(["thread", msg[1]]);
             clearContents(getElement("container"));
-            getElement("container").setAttribute("thread",msg[1]);
+            getElement("container").setAttribute("thread", msg[1]);
             for (var i = 2; i < msg.length; i++) {
                 MakePost(msg[i]);
             }

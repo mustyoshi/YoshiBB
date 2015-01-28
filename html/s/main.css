@@ -12,7 +12,9 @@ body {
     padding:10px;
     
 }
-
+.page:not(:last-child):after{
+    content: ", ";
+}
 #PostCreator #subject_create{
     width:auto;
    // margin:10px;
