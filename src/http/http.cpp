@@ -388,6 +388,12 @@ void ybb_handler::process_messages()
         }
         else if(req[0u].asString() == "hme1")
         {
+            /*TODO: Update this so that it sends the actual board data to start.
+            I want to reduce the amount of requests that have to be made before anything
+            can be rendered.
+            Current model sends the top boards, then it must request the data for each of them
+            That was dumb, I'm not sure why I thought that was a good idea.
+            */
             resp[0] = "hme1";
             for(int i=0; i<forum.topboards.size(); i++)
             {
@@ -439,11 +445,16 @@ void ybb_handler::process_messages()
                         {
                             Forum_Post * fp = lastpost->Key->lastpost->Key;
                             lp[0] = (Json::UInt64)fp->id;
+                            if(fp->poster != NULL){
                             lp[1] = (Json::UInt64)fp->poster->id;
-                            if(fp->poster != NULL)
+
                                 lp[2] =fp->poster->username;
+                            }
                             else
-                                lp[2] = "Error";
+                             {
+                                 lp[1] = 1
+                                 lp[2] = "Error";
+                             }
                             lp[3] = fp->subject;
                             lp[4] = (Json::UInt64)fp->posted;
 
@@ -479,6 +490,24 @@ void ybb_handler::process_messages()
                 resp[0] = "error";
                 goto send_resp;
             }
+            /*TODO: Switch it up so a bord requrest also sends the
+            child boards if they exist.
+            resp[1] = bord_id;
+            resp[2] = [
+            [bord_id,name,desc,etc],
+            etc
+            ]
+            Or it will be an empty array
+            resp[3] = totalpages;
+            resp[4] = [
+            [post array],
+            [postarray],
+            etc];
+            I'll have to rewrite the client to parse this new form.
+            I want to reduce the number of back n forth requests that have to be made.
+            */
+
+
             resp[1] = bord_id;
             resp[2] = bord->topics / TOPPERPAGE;
             Thread_Node *curThread = bord->threads;
