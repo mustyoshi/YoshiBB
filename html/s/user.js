@@ -2,7 +2,7 @@
  * This is the default script sent to the client
  * this will handle all the communication with
  * the server and the displaying of the forum.
- * 
+ * TODO: Save posts for when you forget to log in, and redirect back.
  */
 /* socket is the object that represents the connection with the server */
 var socket;
@@ -385,30 +385,32 @@ function MakeThread(arr) {
 
 function MakePageList(element, numpages, curpage, command) {
     //TODO: Add a document fragment shit
-    if (numpages < 6) {
-        for (var i = 1; i < numpages; i++)
+    //if (numpages < 6) {
+        for (var i = 1; i <= numpages; i++)
 
         {
             var s = createElement("span");
             s.innerHTML = i;
             addClass(s, "page link");
             appendChild(element, s);
-            s.onclick = onclicker([command, i]);
+            s.onclick = onclicker([command, parseInt(element.id.substring(11)), i]);
         }
-    } else {
+   /* } else {
         for (var i = 1; i < 4; i++) {
             var s = createElement("span");
             s.innerHTML = i;
             addClass(s, "page link");
             appendChild(element, s);
-            s.onclick = onclicker([command, i]);
+            s.onclick = onclicker([command, parseInt(element.id.substring(11)), i]);
         }
+   
 //TODO: Check for the current page number
     }
-
+    
+ */
 }
 //This will create the forum div that holds all the threads.
-function MakeThreadGroup(id, numpages) {
+function MakeThreadGroup(id, curpage,numpages) {
     //Gonna make it wit tables
 
     var threadHolder = createElement("div");
@@ -418,7 +420,7 @@ function MakeThreadGroup(id, numpages) {
     addClass(pageHolder, "pageholder");
     pageHolder.id = "pageholder_" + id;
     pageHolder.innerHTML = "Page:";
-    MakePageList(pageHolder, numpages, 1, "bord");
+    MakePageList(pageHolder, numpages,curpage, "bord");
     //TODO: Make a standard function for page lists
     var buttonHolder = createElement("div");
     buttonHolder.id = "buttonholder_" + id;
@@ -752,7 +754,10 @@ function Parse(msg, rebuilding) {
             }
             break;
         case "bord":
-            SetURL(["board", msg[1]]);
+            if (msg[2] == 1)
+                SetURL(["board", msg[1]]);
+            else
+                SetURL(["board", msg[1], "page", msg[2]]);
             //This is when we view a board.
             log("Building board: " + msg[1]);
             // SetState([["board", msg[1]]]);
@@ -789,9 +794,9 @@ function Parse(msg, rebuilding) {
                 appendChild(nvb, [spacer, navlink]);
             }
             //Make the top threadcap.
-            MakeThreadGroup(msg[1], msg[2]);
+            MakeThreadGroup(msg[1], msg[2],msg[3]);
 
-            for (var i = 3; i < msg.length; i++) {
+            for (var i = 4; i < msg.length; i++) {
 
                 //Each thread is a separate array.
                 MakeThread(msg[i]);

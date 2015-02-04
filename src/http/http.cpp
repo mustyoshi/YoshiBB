@@ -9,6 +9,7 @@ Change the format of the Json Values to what I expect them to be
 #include <boost/algorithm/string/replace.hpp>
 #include <openssl/sha.h>
 #define subpoint(a,b) ((a))[b]
+#include <cmath>
 #include "../forum/uint256.h"
 
 const char HEX2DEC[256] =
@@ -300,8 +301,7 @@ void ybb_handler::process_messages()
 {
     double tts = 0.0;
     unsigned long requests = 0;
-    while(1)
-    {
+    while(this->dbpool->shuttingDown == false)    {
         unique_lock<mutex> lock(m_action_lock);
 
         while(m_actions.empty())
@@ -475,13 +475,14 @@ void ybb_handler::process_messages()
         else if(req[0].asString() == "bord")
         {
             #define TOPPERPAGE 5
+            printf("%s\n",req.toStyledString().c_str());
             resp[0] = "bord";
             int bord_id = req[1].asInt();
-            int page = 0;
+            int pagec = 1;
             if(req.size() > 2)
             {
                 printf("We got a page number request\n");
-                page = req[2].asInt();
+                pagec = req[2].asInt();
             }
             Forum_Board * bord = forum.getBoardById(bord_id);
             if(bord == NULL)
@@ -509,7 +510,8 @@ void ybb_handler::process_messages()
 
 
             resp[1] = bord_id;
-            resp[2] = bord->topics / TOPPERPAGE;
+            resp[2] = pagec;
+            resp[3] = (int)ceil((bord->topics / TOPPERPAGE)) + 1;
             Thread_Node *curThread = bord->threads;
             /*
             while(page > 0 && curThread != NULL )
@@ -518,8 +520,16 @@ void ybb_handler::process_messages()
                 page--;
             }
             */
-            for(int i=0; i<TOPPERPAGE && curThread != NULL && curThread->Key != 0; i++)
+            int skip = TOPPERPAGE * (pagec -1);
+            //We want it to stop at the page count * num pages
+            for(int i=0; i<(TOPPERPAGE*pagec) && curThread != NULL && curThread->Key != 0; i++)
             {
+                if(skip > 0) {
+                skip--; //TODO: We have to make this better
+                curThread = curThread->next;
+                printf("Skipping pages\n");
+                continue;
+                }
                 Forum_Thread * thred = curThread->Key;
                 if(thred == 0 || thred->firstpost == 0 ) break;
                 Forum_Acct * postr = thred->creator;
@@ -770,8 +780,8 @@ send_resp:
 
             con->send(resp.toStyledString().c_str());
         }
-        }catch(...){
-printf("Caught exception\n");
+        }catch(std::exception& e){
+printf("Caught exception\n%s\n",e.what());
         }
     }
 }
