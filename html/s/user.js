@@ -29,7 +29,9 @@ var navbarContent = [
     ["Messages", "/inbox", true, ["ibox"]],
     ["Settings", "/settings", true ["sett"]]
 ]; //Label, url, 'real' navigation (refresh)
-
+var config = {
+    postsperpage: 20
+    };
 //Every time we request data, the result is added to this.
 //When the user presses the back button, this is refed into the parse function
 var curState = [];
@@ -385,7 +387,7 @@ function MakeThread(arr) {
 
 function MakePageList(element, numpages, curpage, command) {
     //TODO: Add a document fragment shit
-    //if (numpages < 6) {
+    if (numpages < 6) {
         for (var i = 1; i <= numpages; i++)
 
         {
@@ -393,21 +395,21 @@ function MakePageList(element, numpages, curpage, command) {
             s.innerHTML = i;
             addClass(s, "page link");
             appendChild(element, s);
-            s.onclick = onclicker([command, parseInt(element.id.substring(11)), i]);
+            s.onclick = onclicker([command, parseInt(element.id.substring(11)), i,config.postsperpage]);
         }
-   /* } else {
+    } else {
         for (var i = 1; i < 4; i++) {
             var s = createElement("span");
             s.innerHTML = i;
             addClass(s, "page link");
             appendChild(element, s);
-            s.onclick = onclicker([command, parseInt(element.id.substring(11)), i]);
+            s.onclick = onclicker([command, parseInt(element.id.substring(11)), i,config.postsperpage]);
         }
    
 //TODO: Check for the current page number
     }
     
- */
+ 
 }
 //This will create the forum div that holds all the threads.
 function MakeThreadGroup(id, curpage,numpages) {
@@ -737,18 +739,22 @@ function Parse(msg, rebuilding) {
             var fetchList = [];
             for (var i = 1; i < msg.length; i++) {
                 //The format is [id, name]
-                MakeForumGroup(msg[i]);
-                fetchList.push(msg[i][0]);
+                MakeForumGroup(msg[i].slice(0,2));
+                for(var b = 2;b < msg[i].length;b++){
+                    log(msg[i][b]);
+                    AddChildBoard([msg[i][0],msg[i][b]]);
+                    
+                }
             }
             /* This may have a potential SQLi vulnerability
              * I use FIND_IN_SET() on the string that is
              * sent, and that might open it up to injection.
              */
-            if (!rebuilding) {
-                send(socket, ["hme2", fetchList]);
+            if (!rebuilding) { //Phased out.
+               // send(socket, ["hme2", fetchList]);
             }
             break;
-        case "hme2":
+        case "hme2": //For when specific top boards were requested.
             for (var i = 1; i < msg.length; i++) {
                 AddChildBoard(msg[i]);
             }
