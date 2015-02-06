@@ -2,7 +2,7 @@
 #include "database.h"
 #include <chrono>
 #include <thread>
-
+#define KEEPALIVE 3600
 
 DatabasePool::DatabasePool()
 {
@@ -17,6 +17,7 @@ DatabasePool::~DatabasePool()
 
 void DatabasePool::setup(sql::Driver * myDriver)
 {
+lastQ = time(NULL);
    forum_add = myDriver->connect(config["mysql"]["url"].asString(), config["mysql"]["username"].asString(), config["mysql"]["password"].asString());
    forum_add->setSchema(config["mysql"]["schema"].asString());
    user_create = forum_add->prepareStatement("INSERT INTO  `user`(`username`,`email`,`password`,`birth`) VALUES (?,?,?,UNIX_TIMESTAMP(NOW()));");
@@ -26,7 +27,7 @@ void DatabasePool::setup(sql::Driver * myDriver)
 
    fpost_create = forum_add->prepareStatement("INSERT INTO `forum_post` (board_id,poster_id,topic_id,subject,body,date) VALUE(?,?,?,?,?,?)");
    ftopic_create = forum_add->prepareStatement("CALL `mustyoshi`.FORUM_TOPIC(?,?,?,?,?)");
-
+    keep_alive = forum_add->prepareStatement("SELECT 1;");
 }
 
 void DatabasePool::addAction(Json::Value * newVal)
@@ -39,6 +40,11 @@ void DatabasePool::RunThread()
 {
     while(!shuttingDown)
     {
+        if(time(NULL) - lastQ > KEEPALIVE){ //This less than elegent solution
+                //Will have to do.
+            this->keep_alive->execute();
+            lastQ = time(NULL);
+        }
         bool got_act = false;
         Json::Value myAct;
         Json::Value *pAct = NULL;

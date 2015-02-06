@@ -453,7 +453,21 @@ void ybb_handler::process_messages()
                 {
                     resp[0] = "hme2";
                     //Json::Value subvec;
+                    if(!(req[1].isArray())) //TODO: Configurable array acceptence or not.
+                    {
+                        int bid = 0;
+                        if(req[1].isInt())
+                    bid = req[1].asInt();
+                    else if(req[1].isString())
+                        bid = (toInt(req[1].asString()));
 
+                        req[1] = Json::Value();
+                        req[1][0] = bid;
+                        if(req[1].isArray())
+                        printf("It is an array now\n");
+                    else
+                        printf("%s\n",req.toStyledString().c_str());
+                    }
                     for(int e=0; e<req[1].size(); e++)
                     {
                         int bid = req[1][e].asInt();
@@ -826,6 +840,10 @@ send_resp:
         catch(std::exception& e)
         {
             printf("Caught exception\n%s\n",e.what());
+            //TODO: Check for certain errors like:
+            //Database connection errors, we should be saving everythingto the
+            //memory map of the forum, so when the DB is reestablished we can
+            //update it with the differences.
         }
     }
 }

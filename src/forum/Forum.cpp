@@ -22,7 +22,6 @@ void Forum_Thread::insertPost(Forum_Post * reply)
 {
     bool first = true;
     forum.postCount++;
-    printf("Forum count is %d\n",forum.postCount);
     Post_Node * newReply = new Post_Node();
     newReply->Key = reply;
     this->parent->posts++;
@@ -88,8 +87,6 @@ void Forum_Board::bumpThread(Thread_Node * forum_thread)
 }
 void Forum_Board::insertThread(Forum_Thread * newThread)
 {
-
-
     Thread_Node * newNode = new Thread_Node();
     newThread->myself = newNode;
     newThread->parent = this;
@@ -103,7 +100,6 @@ void Forum_Board::insertThread(Forum_Thread * newThread)
     }
     else if(threads != newNode)
     {
-        printf("Hmm?\n");
         threads->prev = newNode;
         newNode->next = threads;
         threads = newNode;

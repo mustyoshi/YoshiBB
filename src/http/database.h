@@ -26,7 +26,7 @@ public:
 
     sql::PreparedStatement * fpost_create;
     sql::PreparedStatement * ftopic_create;
-
+    sql::PreparedStatement * keep_alive;
     std::list<Json::Value*> actList;
     std::mutex listMut;
     bool shuttingDown;
@@ -34,6 +34,7 @@ public:
     void updateBal(unsigned int id,unsigned int good,unsigned long vol);
     void addAction(Json::Value * newAct);
     void RunThread();
+    long lastQ;
     DatabasePool();
     ~DatabasePool();
 };
