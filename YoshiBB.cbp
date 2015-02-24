@@ -33,9 +33,25 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Unit filename="main.cpp" />
+		<Unit filename="main.h" />
+		<Unit filename="msty/quit.h" />
+		<Unit filename="msty/socket.h" />
+		<Unit filename="msty/strtools.h" />
+		<Unit filename="msty/vector.h" />
+		<Unit filename="src/forum/Forum.cpp" />
+		<Unit filename="src/forum/Forum.h" />
+		<Unit filename="src/forum/uint256.cpp" />
+		<Unit filename="src/forum/uint256.h" />
+		<Unit filename="src/forum/util.cpp" />
+		<Unit filename="src/forum/util.h" />
+		<Unit filename="src/http/database.cpp" />
+		<Unit filename="src/http/database.h" />
+		<Unit filename="src/http/http.cpp" />
+		<Unit filename="src/http/http.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
