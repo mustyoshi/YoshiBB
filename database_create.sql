@@ -1,3 +1,4 @@
+CREATE DATABASE IF NOT EXISTS `yoshibb`;
 CREATE TABLE `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(45) DEFAULT NULL,
@@ -155,11 +156,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `FORUM_TOPIC`(b_id int(11) ,  p_id i
 BEGIN
 DECLARE l_id1 int(11); 
 DECLARE l_id int(11); 
-INSERT INTO `mustyoshi`.`forum_post` (board_id,poster_id,`subject`,body,`date`) VALUES (b_id,p_id,sub,bod,dat); 
+INSERT INTO `yoshibb`.`forum_post` (board_id,poster_id,`subject`,body,`date`) VALUES (b_id,p_id,sub,bod,dat); 
 set l_id1 = (SELECT LAST_INSERT_ID());
-INSERT INTO `mustyoshi`.`forum_topic` (board_id,post_id,lastpost_id) VALUES (b_id,p_id,l_id1);
+INSERT INTO `yoshibb`.`forum_topic` (board_id,post_id,lastpost_id) VALUES (b_id,p_id,l_id1);
 set l_id = (SELECT LAST_INSERT_ID());
-UPDATE `mustyoshi`.`forum_post` SET topic_id = l_id WHERE id = l_id1; 
+UPDATE `yoshibb`.`forum_post` SET topic_id = l_id WHERE id = l_id1; 
 
 END$$
 DELIMITER ;
