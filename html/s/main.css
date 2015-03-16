@@ -1,5 +1,5 @@
 body {
-    background-color: #E2FDFF;
+    background-color: #FFFFFF;
     background-repeat:repeat-x;
     font-family: 'Open Sans', sans-serif;
     margin-top:0px;
@@ -31,26 +31,28 @@ width:390px;
 
 .ForumGroup {
     border-radius: 15px;
-    box-shadow:0px 0px 10px #453;
+    box-shadow:0px 0px 0px;
     width: 90%;
-    padding-bottom: 20px;
-    padding-top: 5px;
+    padding-bottom: 0px;
+    padding-top: 0px;
     border-spacing: 0px;
     overflow:visible;
     margin:auto;
-    margin-top: 10px;
+    margin-top: 0px;
 }
 .ForumGroup > div:first-child{
     padding-left:5px;
+  	background-color: #2F3134;
     font-weight: bold;
     margin:0px;
+  	color: #FFFFFF;
 }
 .link:hover{
     cursor:pointer;
-    text-decoration: underline;
+    text-decoration: none;
 }
 .link{
-    color:blue;
+    color:#000000;
 }
 div {
     border-collapse: collapse;
@@ -131,22 +133,43 @@ div {
 .threadholder > .pageholder{
     float:left;
     position:relative;
-
+  	background-color: #2F3134; 
+  	color: #FFFFFF;
+}
+.threadholder > .pageholder > .link{
+  	color: #FFFFFF;
 }
 .subjectbar > .link{
     float:right;
+  	color: #FFFFFF;
+}
+
+tr > threadheaders{
+ 	text-align: center; 
+}
+
+td {
+ 	border-width:0px;
+    border-bottom-width:1px;
+    border-color:rgb(200,200,200);
+    border-style:solid; 
 }
 .threadholder > .buttonholder{
     float:right;
     position:relative;
-    right:1px;
+    right:0px;
+  	background-color: #2F3134;
+}
+.threadholder > .buttonholder > .link {
+	color: #FFFFFF;
 }
 .threadholder > .buttonholder,.threadholder > .pageholder{
     padding-left:5px;
     padding-right:5px;
+  	margin-right:5px;
     border-width:1px;
-    border-top-right-radius:15px;
-    border-top-left-radius:15px;
+    border-top-right-radius:5px;
+    border-top-left-radius:5px;
     border-color:rgb(200,200,200);
     border-style:solid;
     border-bottom-width:0px;
@@ -154,11 +177,11 @@ div {
 }
 .threadholder > .threads{
     clear:both;
-    padding-left:5px;
-    padding-right:5px;
-    border-width:1px;
-        border-bottom-right-radius:15px;
-    border-bottom-left-radius:15px;
+    padding-left:0px;
+    padding-right:0px;
+    border-width:0px;
+        border-bottom-right-radius:0px;
+    border-bottom-left-radius:0px;
         border-color:rgb(200,200,200);
     border-style:solid;
    width:100%;
@@ -167,6 +190,9 @@ div {
     border-width:0px;
     border-bottom-width:1px;
     border-style:solid;
+  	text-align: left;
+  	background-color: #2F3134;
+  	color: #FFFFFF;
 }
 .threadheaders > .subjectheader{
     width:60%;
@@ -181,6 +207,7 @@ div {
 }
 .threadheaders > .lastheader{
     width:20%;
+    text-align: center;
 }
 
 /*Begin old*/
@@ -227,10 +254,10 @@ blockquote {
     border-style: ridge;
     */
     padding:5px;
-    background-color:#dff;
+    background-color:#FFFFFF;
     width: 75%;
     height:100%;
-    box-shadow:0px 0px 5px #00F5FF;
+    box-shadow:0px 0px 0px;
     margin:auto;
     margin-top:0px;
     padding-bottom:15px;
@@ -259,7 +286,7 @@ blockquote {
     /*border-color: #9cf;
     border-width: thin;
     border-style: solid;*/
-    box-shadow:0px 0px 5px #9cf;
+    box-shadow:0px 0px 1px #2F3134;
     border-radius: 5px;
     padding:5px;
     margin:auto;
@@ -269,7 +296,7 @@ blockquote {
 }
 #logo{
     width:50%;
-    box-shadow:0px 0px 5px #9cf;
+    box-shadow:0px 0px 1px #2F3134;
     border-radius: 5px;
     margin:auto;
     float:left;
@@ -568,11 +595,13 @@ td {
     padding:.5em .6em;
 }
 .subjectbar{
-    
+	
     border-bottom-width:1px;
     border-bottom-style:solid;
     width:100%;
     display:block;
+  	color: #FFFFFF;
+  	background-color: #2F3134;
     padding:2px 0px;
 }
 .subjectbar > span{
@@ -592,8 +621,8 @@ td {
     box-shadow: 0px 0px 10px rgb(40, 139, 40);
     */
     margin:auto;
-    margin-top:5px;
-    margin-bottom:5px;
+    margin-top:0px;
+    margin-bottom:0px;
     //padding:5px;
 
 } 
@@ -604,13 +633,13 @@ td {
     border-right-width:1px;
 }
 .Post:first-child{
-    border-top-left-radius: 15px;
-        border-top-right-radius: 15px;
+    border-top-left-radius: 5px;
+       border-top-right-radius: 5px;
 
 }
 .Post:last-child{
-    border-bottom-left-radius: 15px;
-        border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
 
 }
 
