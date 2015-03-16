@@ -1,9 +1,9 @@
 {
     "mysql":{
-    "username": "forums",
-    "password": "forum.mustyoshi.compassword",
+    "username": "root",
+    "password": "rootpassword",
     "url": "tcp://127.0.0.1:3306",
-    "schema": "mustyoshi",
+    "schema": "yoshibb",
     "account_table": "user", /* I wrote this with another site using the same users, so I seperated the two tables */
     /* id, name,email, birth, */
     "user_table": "forum_user"
