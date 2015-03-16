@@ -110,6 +110,7 @@ Json::Reader reader;
         }
         else
         {
+            newBoard->parent = NULL;
             forum.addTLBoard(newBoard);
         }
     }
@@ -189,12 +190,14 @@ Json::Reader reader;
     server_instance.setDB(MainDBPool);
     // Start a thread to run the processing loop
     thread t(bind(&ybb_handler::process_messages,&server_instance));
+thread t2(bind(&DatabasePool::RunThread,MainDBPool));
 
     // Run the asio loop with the main thread
 
 
     printf("Started websocket server\n");
     server_instance.run(12346);
+    t2.join();
     t.join();
 
 

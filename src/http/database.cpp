@@ -2,7 +2,7 @@
 #include "database.h"
 #include <chrono>
 #include <thread>
-#define KEEPALIVE 3600
+#define KEEPALIVE 300
 
 DatabasePool::DatabasePool()
 {
@@ -42,7 +42,14 @@ void DatabasePool::RunThread()
     {
         if(time(NULL) - lastQ > KEEPALIVE){ //This less than elegent solution
                 //Will have to do.
-            this->keep_alive->execute();
+
+            sql::ResultSet * res = this->keep_alive->executeQuery();
+            while(res->next()){
+
+
+            }
+            //Hmm? This should fix the commands out of sync?
+            delete res;
             lastQ = time(NULL);
         }
         bool got_act = false;
