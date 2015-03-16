@@ -31,7 +31,7 @@ var navbarContent = [
 ]; //Label, url, 'real' navigation (refresh)
 var config = {
     postsperpage: 20
-    };
+};
 //Every time we request data, the result is added to this.
 //When the user presses the back button, this is refed into the parse function
 var curState = [];
@@ -199,7 +199,6 @@ function bbcParse(str, p) {
 /* This is for the timestamp function which takes a timestamp, and returns the string for it */
 var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 function timestamp(dte, sht) {
-    log(dte);
     if (!sht) {
         return dte.toLocaleString();
         //return dte.getDate() + ',' + months[dte.getMonth()] + ' ' + dte.getFullYear() + ' ' + String(dte.getHours()).lpad("0", 2) + ':' + String(dte.getMinutes()).lpad("0", 2);
@@ -360,7 +359,7 @@ function AddChildBoard(arr, cb) {
 }
 //This function creates each row of the forum
 function MakeThread(arr) {
-    log(JSON.stringify(arr));
+    
     //Grab the thread holder element
     var holder = getElement("threads");
     //Create the row itself
@@ -395,7 +394,7 @@ function MakePageList(element, numpages, curpage, command) {
             s.innerHTML = i;
             addClass(s, "page link");
             appendChild(element, s);
-            s.onclick = onclicker([command, parseInt(element.id.substring(11)), i,config.postsperpage]);
+            s.onclick = onclicker([command, parseInt(element.id.substring(11)), i, config.postsperpage]);
         }
     } else {
         for (var i = 1; i < 4; i++) {
@@ -403,16 +402,16 @@ function MakePageList(element, numpages, curpage, command) {
             s.innerHTML = i;
             addClass(s, "page link");
             appendChild(element, s);
-            s.onclick = onclicker([command, parseInt(element.id.substring(11)), i,config.postsperpage]);
+            s.onclick = onclicker([command, parseInt(element.id.substring(11)), i, config.postsperpage]);
         }
-   
+
 //TODO: Check for the current page number
     }
-    
- 
+
+
 }
 //This will create the forum div that holds all the threads.
-function MakeThreadGroup(id, curpage,numpages) {
+function MakeThreadGroup(id, curpage, numpages) {
     //Gonna make it wit tables
 
     var threadHolder = createElement("div");
@@ -422,7 +421,7 @@ function MakeThreadGroup(id, curpage,numpages) {
     addClass(pageHolder, "pageholder");
     pageHolder.id = "pageholder_" + id;
     pageHolder.innerHTML = "Page:";
-    MakePageList(pageHolder, numpages,curpage, "bord");
+    MakePageList(pageHolder, numpages, curpage, "bord");
     //TODO: Make a standard function for page lists
     var buttonHolder = createElement("div");
     buttonHolder.id = "buttonholder_" + id;
@@ -657,6 +656,9 @@ function Parse(msg, rebuilding) {
     curState.push(msg);
     var responseCode = msg[0];
     switch (responseCode) {
+        case "board":
+        send(socket,["bord",msg[1]]);
+        break;
         case "hello":
             //This is what the server initially sends when we establish a connection.
             //Since we've just started a connection
@@ -712,8 +714,12 @@ function Parse(msg, rebuilding) {
                     case "register":
                         MakeRegisterPage();
                         break;
+                    case "board":
+                    send(socket,["bord",parseInt(state[1])]); //TODO: Drop the parse int, make the server more accepting
+                    break;
+                        case "":
                     default:
-                    case "":
+                    
                         //Nothing in the url, so load the main forums
                         log("Nothing");
                         //Hme1 is the command to ask for the forum groups.
@@ -735,15 +741,17 @@ function Parse(msg, rebuilding) {
         case "hme1":
             SetURL([""]);
             //We are at the homepage, so we get the forum groups first
+                        var nvb = getElement("mainnav");
+            clearContents(nvb);
             clearContents(cont);
             var fetchList = [];
             for (var i = 1; i < msg.length; i++) {
                 //The format is [id, name]
-                MakeForumGroup(msg[i].slice(0,2));
-                for(var b = 2;b < msg[i].length;b++){
+                MakeForumGroup(msg[i].slice(0, 2));
+                for (var b = 2; b < msg[i].length; b++) {
                     log(msg[i][b]);
-                    AddChildBoard([msg[i][0],msg[i][b]]);
-                    
+                    AddChildBoard([msg[i][0], msg[i][b]]);
+
                 }
             }
             /* This may have a potential SQLi vulnerability
@@ -751,7 +759,7 @@ function Parse(msg, rebuilding) {
              * sent, and that might open it up to injection.
              */
             if (!rebuilding) { //Phased out.
-               // send(socket, ["hme2", fetchList]);
+                // send(socket, ["hme2", fetchList]);
             }
             break;
         case "hme2": //For when specific top boards were requested.
@@ -768,13 +776,14 @@ function Parse(msg, rebuilding) {
             log("Building board: " + msg[1]);
             // SetState([["board", msg[1]]]);
             clearContents(cont);
-            if (clientCache.getChildren(msg[1]).length > 0) {
+            if (clientCache.getChildren(msg[1]).length > 0 || (msg[5] && msg[5].length > 0)) {
                 //Board has children
-                MakeForumGroup([3, "Child Boards"], true);
-                send(socket, ["hme2", "" + msg[1]]);
+                MakeForumGroup([msg[1],"Sub-forums"], true);
+                if (!msg[5] || msg[5].length == 0)
+                    send(socket, ["hme2", "" + msg[1]]);
             }
             var chain = clientCache.getChain(msg[1]);
-            log(chain);
+           
             var nvb = getElement("mainnav");
             clearContents(nvb);
             var homepage = createElement("span");
@@ -800,12 +809,22 @@ function Parse(msg, rebuilding) {
                 appendChild(nvb, [spacer, navlink]);
             }
             //Make the top threadcap.
-            MakeThreadGroup(msg[1], msg[2],msg[3]);
+            if (msg[4] && msg[4].length > 0) {
+                MakeThreadGroup(msg[1], msg[2], msg[3]);
 
-            for (var i = 4; i < msg.length; i++) {
+                for (var i = 0; i < msg[4].length; i++) {
 
-                //Each thread is a separate array.
-                MakeThread(msg[i]);
+                    //Each thread is a separate array.
+                    MakeThread(msg[4][i]);
+                }
+            }
+            if (msg[5] && msg[5].length > 0) {
+            
+                //for (var i = 0; i < msg[5].length; i++) {
+                msg[5].unshift(msg[1]);
+                    AddChildBoard(msg[5]);
+                    //TODO: Render child boards.
+                //}
             }
             break;
         case "post":

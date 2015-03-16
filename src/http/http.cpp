@@ -269,6 +269,7 @@ bool ybb_handler::validate(connection_hdl con)
 {
 
 //Do some
+//TODO: Spam fighting.
     return true;
 }
 void ybb_handler::on_message(connection_hdl con, server::message_ptr msg)
@@ -313,7 +314,7 @@ void ybb_handler::process_messages()
         action a = m_actions.front();
 
         m_actions.pop();
-
+        //TODO: Clean up this giant function
         lock.unlock();
         try
         {
@@ -440,7 +441,7 @@ void ybb_handler::process_messages()
                         }
                         else
                             lp[0] = 0; //This is the lastpost thing.
-                            vec2.append(lp);
+                        vec2.append(lp);
                         sub.append(vec2);
                     }
                     resp.append(sub);
@@ -457,16 +458,16 @@ void ybb_handler::process_messages()
                     {
                         int bid = 0;
                         if(req[1].isInt())
-                    bid = req[1].asInt();
-                    else if(req[1].isString())
-                        bid = (toInt(req[1].asString()));
+                            bid = req[1].asInt();
+                        else if(req[1].isString())
+                            bid = (toInt(req[1].asString()));
 
                         req[1] = Json::Value();
                         req[1][0] = bid;
                         if(req[1].isArray())
-                        printf("It is an array now\n");
-                    else
-                        printf("%s\n",req.toStyledString().c_str());
+                            printf("It is an array now\n");
+                        else
+                            printf("%s\n",req.toStyledString().c_str());
                     }
                     for(int e=0; e<req[1].size(); e++)
                     {
@@ -527,7 +528,8 @@ void ybb_handler::process_messages()
 
                 }
             }
-            else if(req[0].asString() == "bord")
+            else if(req[0].asString() == "bord") //TODO: Send board name in response
+                //TODO: Add way to avoid sending board name :(
             {
 
                 int TOPPERPAGE = 20;
@@ -539,7 +541,8 @@ void ybb_handler::process_messages()
                 {
                     printf("We got a page number request\n");
                     pagec = req[2].asInt();
-                    if(req.size() > 3){
+                    if(req.size() > 3)
+                    {
                         TOPPERPAGE = (int)fmin(100,req[3].asInt());
                     }
                 }
@@ -571,6 +574,8 @@ void ybb_handler::process_messages()
                 resp[1] = bord_id;
                 resp[2] = pagec;
                 resp[3] = (int)(ceil((bord->topics / (float)TOPPERPAGE)));
+                resp[4] = Json::Value();
+                resp[5] = Json::Value();
                 Thread_Node *curThread = bord->threads;
                 /*
                 while(page > 0 && curThread != NULL )
@@ -617,8 +622,8 @@ void ybb_handler::process_messages()
                     subvec[6] = (Json::UInt64)thred->lastpost->Key->id;
                     subvec[7] = (int)thred->type;
                     subvec[8] = (Json::UInt64)thred->id;
-                    resp.append(subvec);
-i++;
+                    resp[4].append(subvec);
+                    i++;
                     if(curThread->next == curThread)
                     {
                         printf("yyyyy\n");
@@ -626,6 +631,51 @@ i++;
                     }
                     curThread = curThread->next;
 
+                }
+                for(int i=0; i<bord->children.size(); i++)
+                {
+                    Json::Value vec2;
+                    Forum_Board * bd = bord->children[i];
+                    vec2[0] = bd->id;
+                    vec2[1] = bd->name;
+                    vec2[2] = bd->description;
+                    vec2[3] = bd->topics;
+                    vec2[4] = bd->posts;
+                    Json::Value lp;
+                    Thread_Node * lastpost = NULL;
+                    if(bd->laststicky == NULL)
+                    {
+                        lastpost = bd->threads;
+
+                    }
+                    else
+                    {
+                        lastpost = bd->laststicky->next;
+                    }
+                    if(lastpost && lastpost->Key != 0 && lastpost->Key->lastpost != 0)
+                    {
+                        Forum_Post * fp = lastpost->Key->lastpost->Key;
+                        lp[0] = (Json::UInt64)fp->id;
+                        if(fp->poster != NULL)
+                        {
+                            lp[1] = (Json::UInt64)fp->poster->id;
+
+                            lp[2] =fp->poster->username;
+                        }
+                        else
+                        {
+                            lp[1] = 1;
+                            lp[2] = "Error";
+                        }
+                        lp[3] = fp->subject;
+                        lp[4] = (Json::UInt64)fp->posted;
+
+                    }
+                    else
+                        lp[0] = 0; //This is the lastpost thing.
+
+                    vec2.append(lp);
+                    resp[5].append(vec2);
                 }
             }
             else if(req[0].asString() == "post")
@@ -759,15 +809,17 @@ i++;
 
                 theboard->insertThread(newThread);
                 newThread->insertPost(nPost);
-                MainDBPool->ftopic_create->clearParameters();
+                {MainDBPool->ftopic_create->clearParameters();
                 MainDBPool->ftopic_create->setInt(1,forum_id);
                 MainDBPool->ftopic_create->setInt64(2,nPost->poster->id);
                 MainDBPool->ftopic_create->setString(3,req[2].asString());
                 MainDBPool->ftopic_create->setString(4,req[3].asString());
                 MainDBPool->ftopic_create->setInt64(5,nPost->posted);
                 MainDBPool->ftopic_create->execute();
+                }
                 resp[0] = "cpost1";
                 resp[1] = (Json::UInt64)newThread->id;
+                printf("Cpost1 send\n");
                 goto send_resp;
             }
             else if(req[0].asString() == "cpost2")
@@ -800,15 +852,16 @@ i++;
 
                 newPost->poster = (Forum_Acct*)(forum.users.find(srch2)->key);
                 printf("Posted by %s\n",newPost->poster->username.c_str());
-                MainDBPool->fpost_create->clearParameters();
+                {
+                    MainDBPool->fpost_create->clearParameters();
                 MainDBPool->fpost_create->setInt(1,the_thread->parent->id);
                 MainDBPool->fpost_create->setInt(2,newPost->poster->id);
                 MainDBPool->fpost_create->setInt(3,thread_id);
                 MainDBPool->fpost_create->setString(4,newPost->subject);
                 MainDBPool->fpost_create->setString(5,newPost->body);
                 MainDBPool->fpost_create->setInt64(6,newPost->posted);
-
                 MainDBPool->fpost_create->execute();
+                }
                 delete srch2;
                 the_thread->insertPost(newPost);
                 resp[0] = "cpost2";
