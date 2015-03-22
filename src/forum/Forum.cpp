@@ -68,20 +68,28 @@ void Forum_Board::bumpThread(Thread_Node * forum_thread)
         forum_thread->next->prev = forum_thread->prev;
 
     }
-    if(laststicky == NULL)
+    if(threads != forum_thread)
     {
         printf("We inserted\n");
-        forum_thread->next = threads;
-        threads->prev  = forum_thread;
-        threads = forum_thread;
-        forum_thread->prev = NULL;
+
+        if(laststicky == NULL)
+        {
+            forum_thread->next = threads;
+            threads->prev  = forum_thread;
+            threads = forum_thread;
+            forum_thread->prev = NULL;
+        }
+        else
+        {
+            if(laststicky->next != NULL)
+                laststicky->next->prev = forum_thread;
+            laststicky->next = forum_thread;
+            forum_thread->prev = laststicky;
+        }
     }
     else
     {
-        if(laststicky->next != NULL)
-            laststicky->next->prev = forum_thread;
-        laststicky->next = forum_thread;
-        forum_thread->prev = laststicky;
+        printf("Were already at the top of the board\n");
     }
 
 }
@@ -171,20 +179,6 @@ bool splay_tree<Forum_Acct*>::comp(Forum_Acct *a,Forum_Acct *b)
         bn.push_back(t);
     }
     int d = strcmp(an.c_str(),bn.c_str());
-    printf("Comparing %s to %s = %d\n",an.c_str(),bn.c_str(),d);
-    /* if(al < bl) return false;
-     if(al > bl) return true;
-
-     for(int i=0; i<al; i++)
-     {
-         if(
-             ((an[i] - 65) % 32) + 65
-             <=
-             ((bn[i] - 65) % 32) + 65
-         ) return false;
-
-     }
-     */
     return std::lexicographical_compare(an.begin(),an.end(),bn.begin(),bn.end());
     //return a->username.compare((b->username)) < 0;
 

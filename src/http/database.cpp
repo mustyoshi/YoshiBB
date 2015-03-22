@@ -38,6 +38,7 @@ void DatabasePool::addAction(Json::Value * newVal)
 }
 void DatabasePool::RunThread()
 {
+    printf("Keep alive started\n");
     while(!shuttingDown)
     {
         if(time(NULL) - lastQ > KEEPALIVE){ //This less than elegent solution

@@ -543,9 +543,11 @@ void ybb_handler::process_messages()
                     pagec = req[2].asInt();
                     if(req.size() > 3)
                     {
+
                         TOPPERPAGE = (int)fmin(100,req[3].asInt());
                     }
                 }
+                printf("Displaying %d per page\n",TOPPERPAGE);
                 Forum_Board * bord = forum.getBoardById(bord_id);
                 if(bord == NULL)
                 {
@@ -585,6 +587,7 @@ void ybb_handler::process_messages()
                 }
                 */
                 int skip = TOPPERPAGE * (pagec -1);
+                printf("skip %d\n",skip);
                 //We want it to stop at the page count * num pages
                 for(int i=0; i<TOPPERPAGE && curThread != NULL && curThread->Key != 0;)
                 {
@@ -603,12 +606,7 @@ void ybb_handler::process_messages()
                     Json::Value subvec;
                     std::string tempstring;
                     tempstring.assign(firstp->subject);
-                    if(tempstring.length() > 57 )
-                    {
-                        tempstring = tempstring.substr(0,57);
-                        tempstring.append("...");
-                    }
-                    else if(tempstring.length() > 60)
+                    if(tempstring.length() > 60)
                     {
                         tempstring = tempstring.substr(0,57);
                         tempstring.append("...");
@@ -627,6 +625,7 @@ void ybb_handler::process_messages()
                     if(curThread->next == curThread)
                     {
                         printf("yyyyy\n");
+                        curThread->next = NULL;
                         break;
                     }
                     curThread = curThread->next;
@@ -864,6 +863,7 @@ void ybb_handler::process_messages()
                 }
                 delete srch2;
                 the_thread->insertPost(newPost);
+
                 resp[0] = "cpost2";
                 resp[1] = (Json::UInt64)the_thread->id;
                 goto send_resp;

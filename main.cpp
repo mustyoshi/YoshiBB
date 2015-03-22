@@ -173,8 +173,6 @@ Json::Reader reader;
 
 
                 delete srcher;
-
-
                 newThread->insertPost(newPost);
             }
             delete res4;
