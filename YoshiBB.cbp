@@ -32,8 +32,6 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="Groups.cpp" />
-		<Unit filename="Groups.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="main.h" />
 		<Unit filename="msty/quit.h" />
@@ -42,6 +40,8 @@
 		<Unit filename="msty/vector.h" />
 		<Unit filename="src/forum/Forum.cpp" />
 		<Unit filename="src/forum/Forum.h" />
+		<Unit filename="src/forum/Groups.cpp" />
+		<Unit filename="src/forum/Groups.h" />
 		<Unit filename="src/forum/uint256.cpp" />
 		<Unit filename="src/forum/uint256.h" />
 		<Unit filename="src/forum/util.cpp" />
