@@ -22,7 +22,7 @@ start: forum http main.o
 
 debug: start
 optimized: start
-forum: src/forum/uint256.o src/forum/util.o  src/forum/Forum.o
+forum: src/forum/uint256.o src/forum/util.o  src/forum/Forum.o src/forum/Groups.o
 http: src/http/database.o src/http/http.o
 
 clean:

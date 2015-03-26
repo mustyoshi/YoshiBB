@@ -10,6 +10,7 @@
 #include <cstring>
 #include <cstdio>
 #include <functional>
+#include "Groups.h"
 class Forum;
 extern Forum forum;
 
@@ -221,7 +222,7 @@ public:
     std::string username;
     std::string session;
     unsigned long lastactive;
-    std::vector<unsigned int> boardPerms;
+    std::list<unsigned char> boardPerms; //TODO: Better data structure
     std::string email;
     uint512 password;
     unsigned long last_attempt;

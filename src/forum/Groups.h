@@ -1,6 +1,8 @@
 #ifndef YoshiBB_Groups
 #define YoshiBB_Groups
 
+#include <vector>
+#include <list>
 /*
 I was thinking of some sort of initial rule parsing
 Where all the rules for the group are fed into it...
@@ -26,6 +28,10 @@ struct PermRule
     unsigned char perm; //Which permission this is.
 
 };
+struct CompRule{
+unsigned int f_id;
+unsigned char perm;
+};
 namespace Perms
 {
 const unsigned char VIEW = 1 << 1;
@@ -39,9 +45,9 @@ class UserGroup
 private:
     //The binary tree will return defaultPerm if it does not find an extry in the tree. For the majority of users it will return the
     //default perm.
-    std::vector<unsigned char> perms; //TODO: Make a binary tree
+    std::vector<CompRule> perms; //TODO: Make a binary tree
 public:
-    std::vector<PermRule> prules; //This will be filled up then compiled into an unsigned char.
+    std::list<PermRule> prules; //This will be filled up then compiled into an unsigned char.
     unsigned int id;
     unsigned char defaultPerm;
     UserGroup(int id,unsigned char def);
