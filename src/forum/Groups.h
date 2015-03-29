@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <list>
+#include <string>
 /*
 I was thinking of some sort of initial rule parsing
 Where all the rules for the group are fed into it...
@@ -40,18 +41,21 @@ const unsigned char MODERATE = 1 << 3;
 const unsigned char ADMIN = 1 << 7;
 };
 
+
 class UserGroup
 {
 private:
     //The binary tree will return defaultPerm if it does not find an extry in the tree. For the majority of users it will return the
     //default perm.
-    std::vector<CompRule> perms; //TODO: Make a binary tree
+    std::vector<CompRule*> perms; //TODO: Make a binary tree
 public:
-    std::list<PermRule> prules; //This will be filled up then compiled into an unsigned char.
+    std::string name;
+    std::string desc;
+    std::list<PermRule*> prules; //This will be filled up then compiled into an unsigned char.
     unsigned int id;
     unsigned char defaultPerm;
     UserGroup(int id,unsigned char def);
-    void AddRule(PermRule newRule);
+    void AddRule(PermRule * newRule);
     void CompileRules(); //It will be an expensive operation that goes through and checks all the scopes.
     unsigned char GetPerm(unsigned int f_id);
 };

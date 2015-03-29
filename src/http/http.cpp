@@ -222,6 +222,7 @@ void ybb_handler::on_open(connection_hdl hdl)
     subpoint(con->metadata,"name") = Json::Value("Guest");
     subpoint(con->metadata,"session") = Json::Value("");
     subpoint(con->metadata,"boards") = Json::Value(Json::arrayValue);
+    subpoint(con->metadata,"userPointer") = Json::Value(0);
     subpoint(con->metadata,"lastActive") = Json::Value(0);
     // send user list and signon message to all clients
     std::string cook = con->get_request_header("Cookie");
@@ -321,8 +322,14 @@ void ybb_handler::process_messages()
             Json::Value resp;
             bool send_resp = false;
             Json::Value req = a.jmsg;
-
             server::connection_ptr con = m_server.get_con_from_hdl(a.hdl);
+            Forum_Acct * theUser = NULL;
+            unsigned long uP = subpoint(con->metadata,"userPointer").asInt64();
+            if(uP >0) //If it's greater than zero we have a pointer;
+            {
+                theUser = reinterpret_cast<Forum_Acct*>(uP);
+            }
+
             unsigned long start = a.timestart;
             requests++;
             if(req[0u].asString() == "login")
@@ -363,12 +370,25 @@ void ybb_handler::process_messages()
 
                             subpoint(con->metadata,"id") = (Json::UInt64)srch2->id;
                             subpoint(con->metadata,"name") = srch2->username;
+                            subpoint(con->metadata,"userPointer") = (Json::UInt64)(srch2);
                             srch2->session = subpoint(con->metadata,"session").asString();
                             resp[0] = "login";
                             resp[1] =  srch2->username;
                             resp[2] = (Json::UInt64)srch2->id;
                             resp[3] = 0;
-
+                            MainDBPool->user_in_groups->clearParameters();
+                            MainDBPool->user_in_groups->setInt(1,srch2->id);
+                            sql::ResultSet * res = MainDBPool->user_in_groups->executeQuery();
+                            while(res->next())
+                            {
+                                UserGroup * pof = forum.getGroupById(res->getInt("group_id"));
+                                if(pof != NULL)
+                                {
+                                    printf("Group board %d\n",pof->id);
+                                    srch2->groups.push_back(pof);
+                                }
+                            }
+                            delete res;
                         }
                         else
                         {
@@ -404,6 +424,17 @@ void ybb_handler::process_messages()
 
                         Json::Value vec2;
                         Forum_Board * bd = pb->children[b];
+                        if(theUser != NULL)
+                        {
+                            if(theUser->GetPerm(bd->id) < 3)
+                            {
+                                continue;
+                            }
+                        }
+                        else if(forum.guestPerm->GetPerm(bd->id) <3)
+                        {
+                            continue;
+                        }
                         vec2[0] = bd->id;
                         vec2[1] = bd->name;
                         vec2[2] = bd->description;
@@ -804,17 +835,20 @@ void ybb_handler::process_messages()
                 Forum_Acct_S * srch = new Forum_Acct_S(subpoint(con->metadata,"id").asUInt64());
 
                 nPost->poster = (Forum_Acct*)forum.users.find(srch)->key;
+                nPost->poster->posts++;
+
                 delete srch;
 
                 theboard->insertThread(newThread);
                 newThread->insertPost(nPost);
-                {MainDBPool->ftopic_create->clearParameters();
-                MainDBPool->ftopic_create->setInt(1,forum_id);
-                MainDBPool->ftopic_create->setInt64(2,nPost->poster->id);
-                MainDBPool->ftopic_create->setString(3,req[2].asString());
-                MainDBPool->ftopic_create->setString(4,req[3].asString());
-                MainDBPool->ftopic_create->setInt64(5,nPost->posted);
-                MainDBPool->ftopic_create->execute();
+                {
+                    MainDBPool->ftopic_create->clearParameters();
+                    MainDBPool->ftopic_create->setInt(1,forum_id);
+                    MainDBPool->ftopic_create->setInt64(2,nPost->poster->id);
+                    MainDBPool->ftopic_create->setString(3,req[2].asString());
+                    MainDBPool->ftopic_create->setString(4,req[3].asString());
+                    MainDBPool->ftopic_create->setInt64(5,nPost->posted);
+                    MainDBPool->ftopic_create->execute();
                 }
                 resp[0] = "cpost1";
                 resp[1] = (Json::UInt64)newThread->id;
@@ -850,16 +884,17 @@ void ybb_handler::process_messages()
                 Forum_Acct_S * srch2 = new Forum_Acct_S(subpoint(con->metadata,"id").asUInt64());
 
                 newPost->poster = (Forum_Acct*)(forum.users.find(srch2)->key);
+                newPost->poster->posts++;
                 printf("Posted by %s\n",newPost->poster->username.c_str());
                 {
                     MainDBPool->fpost_create->clearParameters();
-                MainDBPool->fpost_create->setInt(1,the_thread->parent->id);
-                MainDBPool->fpost_create->setInt(2,newPost->poster->id);
-                MainDBPool->fpost_create->setInt(3,thread_id);
-                MainDBPool->fpost_create->setString(4,newPost->subject);
-                MainDBPool->fpost_create->setString(5,newPost->body);
-                MainDBPool->fpost_create->setInt64(6,newPost->posted);
-                MainDBPool->fpost_create->execute();
+                    MainDBPool->fpost_create->setInt(1,the_thread->parent->id);
+                    MainDBPool->fpost_create->setInt(2,newPost->poster->id);
+                    MainDBPool->fpost_create->setInt(3,thread_id);
+                    MainDBPool->fpost_create->setString(4,newPost->subject);
+                    MainDBPool->fpost_create->setString(5,newPost->body);
+                    MainDBPool->fpost_create->setInt64(6,newPost->posted);
+                    MainDBPool->fpost_create->execute();
                 }
                 delete srch2;
                 the_thread->insertPost(newPost);

@@ -18,6 +18,29 @@ Forum_Acct::Forum_Acct()
     username = "Guest";
     email = "No Email";
 }
+unsigned char Forum_Acct::GetPerm(unsigned int f_id)
+{
+    unsigned char toRet = 0;
+    for(auto i=this->boardPerms.begin(); i != this->boardPerms.end(); ++i)
+    {
+
+        if((*i)->f_id == f_id)
+        {
+            return (*i)->perm;
+        }
+    }
+    //If it reached this point, then we need to search the groups for the perm
+    CompRule * nRule = new CompRule();
+    nRule->f_id = f_id;
+    nRule->perm = 255;
+    for(auto i=this->groups.begin(); i != this->groups.end(); ++i)
+    {
+        nRule->perm = nRule->perm & (*i)->GetPerm(f_id);
+    }
+    this->boardPerms.push_back(nRule);
+    toRet = nRule->perm;
+    return toRet;
+}
 void Forum_Thread::insertPost(Forum_Post * reply)
 {
     bool first = true;
@@ -120,6 +143,16 @@ void Forum_Board::insertThread(Forum_Thread * newThread)
 void Forum::addBoard(Forum_Board * newBoard)
 {
     boards.push_back(newBoard);
+}
+UserGroup *  Forum::getGroupById(unsigned int gid)
+{
+    for(auto i = this->groups.begin(); i != this->groups.end(); ++i)
+    {
+        if((*i)->id == gid) return (*i);
+
+
+    }
+    return NULL;
 }
 void Forum::addTLBoard(Forum_Board * newBoard)
 {

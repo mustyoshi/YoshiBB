@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "src/forum/Forum.h"
+#include "src/forum/Groups.h"
 #include "src/forum/uint256.h"
 #include "src/http/http.h"
 #include <websocketpp/server.hpp>
@@ -62,7 +63,7 @@ int main()
 
     myDriver = sql::mysql::get_mysql_driver_instance();
     MainDBPool = new DatabasePool();
-Json::Reader reader;
+    Json::Reader reader;
     std::ifstream config_file("config.json", std::ifstream::binary);
     if(reader.parse( config_file, config, false ))
     {
@@ -177,18 +178,51 @@ Json::Reader reader;
             }
             delete res4;
 
-
-
         }
         printf("%d threads, %d posts in %lu\n",thrd,psts,(unsigned long)time(NULL) - start);
     }
+    delete res2;
+    res2 = stmt->executeQuery("SELECT * FROM forum_user_group");
+    UserGroup * testGroup = NULL;
+    while(res2->next())
+    {
+
+        UserGroup * newGroup = new UserGroup(res2->getInt("id"),res2->getUInt("default_permission"));
+        newGroup->name = res2->getString("name");
+        newGroup->desc = res2->getString("description");
+        delete res3;
+        res3 = stmt->executeQuery("SELECT `id`,`board_id`,`permission_level` FROM forum_user_group_rule WHERE group_id = " + res2->getString("id"));
+        while(res3->next()){
+            PermRule* newRule = new PermRule();
+            newRule->scope = 0;
+            newRule->f_id = res3->getInt("board_id");
+            newRule->perm =  res3->getUInt("permission_level");
+            printf("Board %d perm %d\n",newRule->f_id,newRule->perm);
+            newGroup->AddRule(newRule);
+        }
+        if(newGroup->id == 1)
+            testGroup = newGroup;
+        newGroup->CompileRules();
+        printf("Group %s added\n",newGroup->name.c_str());
+        forum.groups.push_front(newGroup);
+
+
+    }
+    delete res2;
+
+
+
     myConn->close();
+    printf("Guest perms on 4 = %d\n",testGroup->GetPerm(4));
+    forum.guestPerm = testGroup;
+
+
     MainDBPool->setup(myDriver);
     ybb_handler server_instance;
     server_instance.setDB(MainDBPool);
     // Start a thread to run the processing loop
     thread t(bind(&ybb_handler::process_messages,&server_instance));
-thread t2(bind(&DatabasePool::RunThread,MainDBPool));
+    thread t2(bind(&DatabasePool::RunThread,MainDBPool));
 
     // Run the asio loop with the main thread
 
@@ -196,6 +230,7 @@ thread t2(bind(&DatabasePool::RunThread,MainDBPool));
     printf("Started websocket server\n");
     server_instance.run(12346);
     t2.join();
+
     t.join();
 
 

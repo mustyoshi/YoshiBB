@@ -222,7 +222,9 @@ public:
     std::string username;
     std::string session;
     unsigned long lastactive;
-    std::list<unsigned char> boardPerms; //TODO: Better data structure
+    std::list<UserGroup*> groups;
+    unsigned char GetPerm(unsigned int f_id);
+    std::list<CompRule*> boardPerms; //TODO: Better data structure
     std::string email;
     uint512 password;
     unsigned long last_attempt;
@@ -304,6 +306,8 @@ public:
 class Forum
 {
 public:
+    UserGroup * guestPerm;
+    std::list<UserGroup*> groups;
     splay_tree<Forum_Acct_S*> users;
     splay_tree<Forum_Acct*> users_name;
     splay_tree<Forum_Thread_S*> thread_posts;
@@ -312,6 +316,7 @@ public:
     void addBoard(Forum_Board * newBoard);
     void addTLBoard(Forum_Board * newBoard);
     Forum_Board*  getBoardById(unsigned int check_id);
+    UserGroup * getGroupById(unsigned int gid);
     unsigned long postCount;
     unsigned long threadCount;
     unsigned long usersSize;

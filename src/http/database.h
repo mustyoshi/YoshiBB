@@ -26,6 +26,9 @@ public:
 
     sql::PreparedStatement * fpost_create;
     sql::PreparedStatement * ftopic_create;
+    sql::PreparedStatement * user_in_groups;
+
+
     sql::PreparedStatement * keep_alive;
     std::list<Json::Value*> actList;
     std::mutex listMut;

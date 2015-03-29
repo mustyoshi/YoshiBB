@@ -11,7 +11,7 @@ DatabasePool::DatabasePool()
 }
 DatabasePool::~DatabasePool()
 {
-
+//TODO: Delete all the things.
     printf("Database closed\n");
 }
 
@@ -23,7 +23,7 @@ lastQ = time(NULL);
    user_create = forum_add->prepareStatement("INSERT INTO  `user`(`username`,`email`,`password`,`birth`) VALUES (?,?,?,UNIX_TIMESTAMP(NOW()));");
    user_id_get = forum_add->prepareStatement("SELECT `id` FROM `user` WHERE `username` = ? LIMIT 1;");
    fuser_create = forum_add->prepareStatement("INSERT INTO `forum_user` (`id`) VALUES (?);");
-
+    user_in_groups = forum_add->prepareStatement("SELECT user_id,group_id FROM `forum_user_in_group` WHERE user_id = ?");
 
    fpost_create = forum_add->prepareStatement("INSERT INTO `forum_post` (board_id,poster_id,topic_id,subject,body,date) VALUE(?,?,?,?,?,?)");
    ftopic_create = forum_add->prepareStatement("CALL `mustyoshi`.FORUM_TOPIC(?,?,?,?,?)");
