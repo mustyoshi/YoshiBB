@@ -7,12 +7,12 @@
  */
 
 
- /*
-Possible state manager:
-Create a AddState function that adds additional commands to replay
-And another PushState function that will "save" the state and start
-a new one, THere will be another another function that acts as
-the parser, it just replays the commands in the state.
+/*
+ Possible state manager:
+ Create a AddState function that adds additional commands to replay
+ And another PushState function that will "save" the state and start
+ a new one, THere will be another another function that acts as
+ the parser, it just replays the commands in the state.
  */
 /* socket is the object that represents the connection with the server */
 var socket;
@@ -66,9 +66,9 @@ var clientCache = {
     },
     getChildren: function(bid) {
         var children = [];
-        for (var i = 1; i < this.boards.length; i++){
+        for (var i = 1; i < this.boards.length; i++) {
             //Make sure the board is real before trying to access it's parent.
-            if (this.boards[i] && this.boards[i].parent === bid){
+            if (this.boards[i] && this.boards[i].parent === bid) {
                 children.push(this.boards[i].id);
             }
         }
@@ -105,7 +105,7 @@ var closed = true;
 /* Some shorthands */
 String.prototype.lpad = function(padString, length) {
     var str = this;
-    while (str.length < length){
+    while (str.length < length) {
         str = padString + str;
     }
     return str;
@@ -373,7 +373,7 @@ function AddChildBoard(arr, cb) {
 }
 //This function creates each row of the forum
 function MakeThread(arr) {
-    
+
     //Grab the thread holder element
     var holder = getElement("threads");
     //Create the row itself
@@ -671,8 +671,8 @@ function Parse(msg, rebuilding) {
     var responseCode = msg[0];
     switch (responseCode) {
         case "board":
-        send(socket,["bord",msg[1]]);
-        break;
+            send(socket, ["bord", msg[1]]);
+            break;
         case "hello":
             //This is what the server initially sends when we establish a connection.
             //Since we've just started a connection
@@ -693,6 +693,7 @@ function Parse(msg, rebuilding) {
                 //Create the link to the inbox.
                 var inboxText = createElement("span");
                 addClass(inboxText, "link u");
+
                 inboxText.innerHTML = "Inbox (" + msg[3] + ")";
                 inboxText.onclick = onclicker(["ibox"]);
                 //Add the elements to the box.
@@ -729,11 +730,11 @@ function Parse(msg, rebuilding) {
                         MakeRegisterPage();
                         break;
                     case "board":
-                    send(socket,["bord",parseInt(state[1])]); //TODO: Drop the parse int, make the server more accepting
-                    break;
-                        case "":
+                        send(socket, ["bord", parseInt(state[1])]); //TODO: Drop the parse int, make the server more accepting
+                        break;
+                    case "":
                     default:
-                    
+
                         //Nothing in the url, so load the main forums
                         log("Nothing");
                         //Hme1 is the command to ask for the forum groups.
@@ -753,9 +754,11 @@ function Parse(msg, rebuilding) {
 
             break;
         case "hme1":
-            SetURL([""]);
+            if (!rebuilding) {
+                StartState(msg, "YoshiBB", "/");
+            }
             //We are at the homepage, so we get the forum groups first
-                        var nvb = getElement("mainnav");
+            var nvb = getElement("mainnav");
             clearContents(nvb);
             clearContents(cont);
             var fetchList = [];
@@ -782,22 +785,28 @@ function Parse(msg, rebuilding) {
             }
             break;
         case "bord":
-            if (msg[2] == 1)
-                SetURL(["board", msg[1]]);
-            else
-                SetURL(["board", msg[1], "page", msg[2]]);
+            var urt = "/";
+            if (msg[2] == 1) {
+                urt = "/board/" + msg[1];
+            }
+            else {
+                urt = "/board/" + msg[1] + "/page/" + msg[2];
+            }
+            if (!rebuilding) {
+                StartState(msg, "YoshiBB", urt);
+            }
             //This is when we view a board.
             log("Building board: " + msg[1]);
-            
+
             clearContents(cont);
             if (clientCache.getChildren(msg[1]).length > 0 || (msg[5] && msg[5].length > 0)) {
                 //Board has children
-                MakeForumGroup([msg[1],"Sub-forums"], true);
+                MakeForumGroup([msg[1], "Sub-forums"], true);
                 if (!msg[5] || msg[5].length == 0)
                     send(socket, ["hme2", "" + msg[1]]);
             }
             var chain = clientCache.getChain(msg[1]);
-           
+
             var nvb = getElement("mainnav");
             clearContents(nvb);
             var homepage = createElement("span");
@@ -833,16 +842,19 @@ function Parse(msg, rebuilding) {
                 }
             }
             if (msg[5] && msg[5].length > 0) {
-            
+
                 //for (var i = 0; i < msg[5].length; i++) {
                 msg[5].unshift(msg[1]);
-                    AddChildBoard(msg[5]);
-                    //TODO: Render child boards.
+                AddChildBoard(msg[5]);
+                //TODO: Render child boards.
                 //}
             }
             break;
         case "post":
-            SetURL(["thread", msg[1]]);
+            // SetURL(["thread", msg[1]]);
+            if (!rebuilding) {
+                StartState(msg, "YoshiBB", "/thread/" + msg[1]);
+            }
             clearContents(getElement("container"));
             getElement("container").setAttribute("thread", msg[1]);
             for (var i = 2; i < msg.length; i++) {
@@ -868,10 +880,8 @@ function Parse(msg, rebuilding) {
 }
 function SetURL(arr) {
     var surl = "/";
-    for (var i = 0; i < arr.length; i++) {
-        surl = surl + arr[i] + "/";
-    }
-    history.pushState("", "", "http://" + hostname + surl);
+
+    history.pushState("", "", surl);
 }
 //This function simply parses the url and returns the array
 function GetState() {
@@ -883,6 +893,16 @@ function GetState() {
 
     log("State is:" + JSON.stringify(hashtab));
     return hashtab;
+}
+// These methods exist to push the states
+function StartState(state, title, url) {
+    history.pushState([state], title, url);
+}
+function PushState(replay) {
+    var curSt = history.state;
+    curSt.push(replay);
+    
+    history.replaceState(curSt);
 }
 function SetState(state) {
     for (var i = 0; i < state.length; i++)
@@ -896,7 +916,7 @@ function SetState(state) {
 function StatePopped(event) {
     console.log(event);
     if (event.state) {
-        for (var i = 0; i < event.state.length; i++){
+        for (var i = 0; i < event.state.length; i++) {
             console.log("Parsing commands again");
             Parse(event.state[i], true);
         }
