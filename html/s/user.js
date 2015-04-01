@@ -3,6 +3,16 @@
  * this will handle all the communication with
  * the server and the displaying of the forum.
  * TODO: Save posts for when you forget to log in, and redirect back.
+ * TODO: Create an XHR fallback.
+ */
+
+
+ /*
+Possible state manager:
+Create a AddState function that adds additional commands to replay
+And another PushState function that will "save" the state and start
+a new one, THere will be another another function that acts as
+the parser, it just replays the commands in the state.
  */
 /* socket is the object that represents the connection with the server */
 var socket;
@@ -56,9 +66,12 @@ var clientCache = {
     },
     getChildren: function(bid) {
         var children = [];
-        for (var i = 1; i < this.boards.length; i++)
-            if (this.boards[i].parent === bid)
+        for (var i = 1; i < this.boards.length; i++){
+            //Make sure the board is real before trying to access it's parent.
+            if (this.boards[i] && this.boards[i].parent === bid){
                 children.push(this.boards[i].id);
+            }
+        }
         return children;
 
     },
@@ -92,8 +105,9 @@ var closed = true;
 /* Some shorthands */
 String.prototype.lpad = function(padString, length) {
     var str = this;
-    while (str.length < length)
+    while (str.length < length){
         str = padString + str;
+    }
     return str;
 }
 /* This is a chainable shorthand for appending children */
@@ -774,7 +788,7 @@ function Parse(msg, rebuilding) {
                 SetURL(["board", msg[1], "page", msg[2]]);
             //This is when we view a board.
             log("Building board: " + msg[1]);
-            // SetState([["board", msg[1]]]);
+            
             clearContents(cont);
             if (clientCache.getChildren(msg[1]).length > 0 || (msg[5] && msg[5].length > 0)) {
                 //Board has children
@@ -880,10 +894,14 @@ function SetState(state) {
 }
 //This is called when the back button is pressed.
 function StatePopped(event) {
+    console.log(event);
     if (event.state) {
-        for (var i = 0; i < event.state.length; i++)
+        for (var i = 0; i < event.state.length; i++){
+            console.log("Parsing commands again");
             Parse(event.state[i], true);
+        }
     }
+
 
 }
 function BuildNavbar() {

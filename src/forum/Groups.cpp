@@ -69,7 +69,6 @@ void UserGroup::CompileRules()
 
                     if((tt->perm & ( 1<<p)) >0 && tt->scope <= dS[p/4])
                     {
-
                         aS[p/4] = tt->scope;
                         rule = rule | (3 << p);
                     }
