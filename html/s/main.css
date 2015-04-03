@@ -5,8 +5,8 @@ body {
     margin-top:0px;
 }
 #PostCreator{
-    width:400px;
-        margin:auto;
+    width:700px;
+        margin: 40px auto auto;
     border-style:solid;
     border-width:1px;
     padding:10px;
@@ -16,14 +16,15 @@ body {
     content: ", ";
 }
 #PostCreator #subject_create{
-    width:auto;
+    width:690;
    // margin:10px;
 
 }
 #PostCreator #body_create{
-width:390px;
+width:690px;
    // margin:10px;
     height:300px;
+	resize: none;
 }
 
 
