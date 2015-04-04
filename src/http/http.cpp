@@ -762,6 +762,28 @@ void ybb_handler::process_messages()
                 }
                 else
                 {
+                    std::string nms = req[1].asString();
+                    if(nms.size() < 6 || nms.size() > 16)
+                    {
+                        delete srch;
+                        resp[0] = "reg";
+                        resp[1] = 0;
+                        resp[2] = "Username wrong size.";
+                        goto send_resp;
+                    }
+                    bool notSpaces = true;
+                    for(int i=0; i<nms.size(); i++)
+                    {
+                        if(nms[i] != ' ') notSpaces = false;
+                    }
+                    if(notSpaces)
+                    {
+                        delete srch;
+                        resp[0] = "reg";
+                        resp[1] = 0;
+                        resp[2] = "Username has wrong characters.";
+                        goto send_resp;
+                    }
                     printf("Could not find name in tree.\n");
                     //push to database
 
