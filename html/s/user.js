@@ -571,6 +571,7 @@ function MakeTopicForm(forum_id, isPost) {
     var subBut = createElement("input");
     subBut.id = "TopicSubmit";
     subBut.type = "submit";
+	subBut.class = "btn";
     formHolder.onsubmit = function() {
         if (!isPost)
             send(socket, ["cpost1", forum_id, subjectBar.value, bodyBar.value]);
