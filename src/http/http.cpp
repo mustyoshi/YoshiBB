@@ -926,10 +926,38 @@ void ybb_handler::process_messages()
                 goto send_resp;
 
             }
-            else
+            else if(req[0].asString() == "prof")   //User requested to view their profile.
             {
-                requests--;
+                //TODO: Permissions to support "multiple forums on the same server"
+                resp[0] = "prof";
+                resp[1] = req[1]; //We will have support for both usernames, and id searches
+                if(req[1].isInt())
+                {
+                    Forum_Acct * babe = NULL;
+                    if(req[1].asUInt64() > 0) {}
+                    Forum_Acct_S * srch = new Forum_Acct_S(req[1].asUInt64());
+                    babe = (Forum_Acct*)(forum.users.find(srch)->key);
+                    delete srch;
+                }
+                Json::Value subvec;
+                if(babe == 0)
+                {
+                    subvec[0] = "No User Found";
+                    subvec[1] = -1;
+                }
+                else
+                {
+                    subvec[0] = babe->username;
+                    subvec[1] = (Json::UInt64)(babe->id);
+                }
+                resp[2] = subvec;
+                goto send_resp;
             }
+        }
+        else
+        {
+            requests--;
+        }
 
 
 
@@ -937,25 +965,25 @@ void ybb_handler::process_messages()
 
 
 send_resp:
-            tts =(tts + (double)(time(NULL) - start))/2.0;
-            //if(requests %100 == 1)
-            printf("Requests: %lu, tts: %.04f\n",requests,tts);
-            if(!resp.empty())
-            {
-                server::connection_ptr con = m_server.get_con_from_hdl(a.hdl);
-
-                con->send(resp.toStyledString().c_str());
-            }
-        }
-        catch(std::exception& e)
+        tts =(tts + (double)(time(NULL) - start))/2.0;
+        //if(requests %100 == 1)
+        printf("Requests: %lu, tts: %.04f\n",requests,tts);
+        if(!resp.empty())
         {
-            printf("Caught exception\n%s\n",e.what());
-            //TODO: Check for certain errors like:
-            //Database connection errors, we should be saving everythingto the
-            //memory map of the forum, so when the DB is reestablished we can
-            //update it with the differences.
+            server::connection_ptr con = m_server.get_con_from_hdl(a.hdl);
+
+            con->send(resp.toStyledString().c_str());
         }
     }
+    catch(std::exception& e)
+    {
+        printf("Caught exception\n%s\n",e.what());
+        //TODO: Check for certain errors like:
+        //Database connection errors, we should be saving everythingto the
+        //memory map of the forum, so when the DB is reestablished we can
+        //update it with the differences.
+    }
+}
 }
 void ybb_handler::setDB(DatabasePool * newDB)
 {

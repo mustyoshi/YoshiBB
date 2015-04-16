@@ -221,6 +221,7 @@ public:
     std::string signature;
     std::string username;
     std::string session;
+    std::string prof_desc;
     unsigned long lastactive;
     std::list<UserGroup*> groups;
     unsigned char GetPerm(unsigned int f_id);

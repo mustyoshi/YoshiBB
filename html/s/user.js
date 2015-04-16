@@ -34,7 +34,7 @@ var user = {
 };
 var navbarContent = [
     ["Home", "", false, ["hme1"]],
-    ["Profile", "/profile", false, ["prof", user.id]],
+    ["Profile", "/profile", false, ["prof", 0]],
     ["Search", "search", true, ["srch"]],
     ["Messages", "/inbox", true, ["ibox"]],
     ["Settings", "/settings", true ["sett"]]
@@ -866,6 +866,9 @@ function Parse(msg, rebuilding) {
             send(socket, ["post", msg[1]]);
             break;
         case "prof":
+            if (!rebuilding) {
+                StartState(msg, "YoshiBB", "/profile/" + msg[1]);
+            }
             log("Prof " + JSON.stringify(msg));
             MakeProfile(msg[2]); //Extract the response and send it ovar.
 
@@ -930,7 +933,7 @@ function BuildNavbar() {
     //document.getElementById("navbar").innerHTML = JSON.stringify(navbarContent);
     for (var i in navbarContent) {
         var nav = createElement("span");
-
+        
         nav.innerHTML = navbarContent[i][0];
         if (!navbarContent[i][2]) {
             addClass(nav, "nav link");
