@@ -55,6 +55,24 @@ width:690px;
 .link{
     color:#000000;
 }
+
+.btn {
+  -webkit-border-radius: 5;
+  -moz-border-radius: 5;
+  border-radius: 5px;
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 14px;
+  background: #2F3134;
+  padding: 4px 12px 4px 12px;
+  border: solid #000000 0px;	// shows up with a border if it doesnt have this ??
+  text-decoration: none;
+}
+.btn:hover {
+  background: #2F3134;
+  text-decoration: none;
+}
+
 div {
     border-collapse: collapse;
    
