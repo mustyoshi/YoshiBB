@@ -18,13 +18,23 @@ body {
 #PostCreator #subject_create{
     width:690;
    // margin:10px;
-
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 2px;
+    border-color: rgb(149, 149, 149);
 }
 #PostCreator #body_create{
 width:690px;
    // margin:10px;
     height:300px;
 	resize: none;
+    width: 690px;
+    height: 300px;
+    resize: none;
+    border-radius: 2px;
+    border-style: solid;
+    border-color: #959595;
+    border-width: 1px;
 }
 
 
