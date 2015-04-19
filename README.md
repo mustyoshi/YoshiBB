@@ -7,7 +7,9 @@ A forum software designed around the websocket technology.
 Requirements
 ============
 
-JsonCpp, Websocketspp, Boost 1.53
+* JsonCpp: https://github.com/open-source-parsers/jsoncpp
+* Websocketspp: https://github.com/zaphoyd/websocketpp
+* Boost 1.53: http://www.boost.org/users/history/version_1_53_0.html
 
 
 Installation
