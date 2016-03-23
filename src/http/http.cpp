@@ -953,12 +953,12 @@ void ybb_handler::process_messages()
                 }
                 resp[2] = subvec;
                 goto send_resp;
+
             }
-        }
-        else
-        {
-            requests--;
-        }
+            else
+            {
+                requests--;
+            }
 
 
 
@@ -966,25 +966,25 @@ void ybb_handler::process_messages()
 
 
 send_resp:
-        tts =(tts + (double)(time(NULL) - start))/2.0;
-        //if(requests %100 == 1)
-        printf("Requests: %lu, tts: %.04f\n",requests,tts);
-        if(!resp.empty())
-        {
-            server::connection_ptr con = m_server.get_con_from_hdl(a.hdl);
+            tts =(tts + (double)(time(NULL) - start))/2.0;
+            //if(requests %100 == 1)
+            printf("Requests: %lu, tts: %.04f\n",requests,tts);
+            if(!resp.empty())
+            {
+                server::connection_ptr con = m_server.get_con_from_hdl(a.hdl);
 
-            con->send(resp.toStyledString().c_str());
+                con->send(resp.toStyledString().c_str());
+            }
+        }
+        catch(std::exception& e)
+        {
+            printf("Caught exception\n%s\n",e.what());
+            //TODO: Check for certain errors like:
+            //Database connection errors, we should be saving everythingto the
+            //memory map of the forum, so when the DB is reestablished we can
+            //update it with the differences.
         }
     }
-    catch(std::exception& e)
-    {
-        printf("Caught exception\n%s\n",e.what());
-        //TODO: Check for certain errors like:
-        //Database connection errors, we should be saving everythingto the
-        //memory map of the forum, so when the DB is reestablished we can
-        //update it with the differences.
-    }
-}
 }
 void ybb_handler::setDB(DatabasePool * newDB)
 {
