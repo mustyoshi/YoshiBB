@@ -931,9 +931,10 @@ void ybb_handler::process_messages()
                 //TODO: Permissions to support "multiple forums on the same server"
                 resp[0] = "prof";
                 resp[1] = req[1]; //We will have support for both usernames, and id searches
+                Forum_Acct * babe = NULL;
                 if(req[1].isInt())
                 {
-                    Forum_Acct * babe = NULL;
+
                     if(req[1].asUInt64() > 0) {}
                     Forum_Acct_S * srch = new Forum_Acct_S(req[1].asUInt64());
                     babe = (Forum_Acct*)(forum.users.find(srch)->key);
